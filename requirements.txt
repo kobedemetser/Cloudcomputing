@@ -1,0 +1,4 @@
+# requirements we need
+
+# libary for mqqt
+paho-mqtt

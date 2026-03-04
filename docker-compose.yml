@@ -1,0 +1,61 @@
+services:
+  # 1. De MQTT Broker (Mosquitto)
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+    networks:
+      - gateway_net
+
+  # 2. De Database (InfluxDB)
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - gateway_net
+
+  # 3. De Verwerking (Node-RED)
+  nodered:
+    image: nodered/node-red:latest
+    ports:
+      - "1880:1880"
+    volumes:
+      - node_red_data:/data
+    networks:
+      - gateway_net
+    depends_on:
+      - mosquitto
+      - influxdb
+
+  # 4. Jouw eigen Python App (Sensor simulatie)
+  sensor_app:
+    build: .
+    networks:
+      - gateway_net
+    depends_on:
+      - mosquitto
+
+  # 5. Beheer (Portainer)
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - gateway_net
+
+networks:
+  gateway_net:
+    driver: bridge
+
+volumes:
+  influxdb_data:
+  node_red_data:
+  portainer_data:

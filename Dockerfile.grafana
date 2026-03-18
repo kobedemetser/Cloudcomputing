@@ -1,0 +1,5 @@
+FROM grafana/grafana-enterprise
+
+# Copy data from local directory to image
+# Grafana user ID is typically 472
+COPY --chown=472:472 ./grafana_data /var/lib/grafana

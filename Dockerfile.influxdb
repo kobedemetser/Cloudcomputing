@@ -1,0 +1,5 @@
+FROM influxdb:2.7
+
+# Copy data from local directory to image
+# InfluxDB runs as influxdb user
+COPY --chown=influxdb:influxdb ./influxdb_data /var/lib/influxdb2

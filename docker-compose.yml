@@ -1,48 +1,63 @@
 services:
-  # 1. De MQTT Broker (Mosquitto)
+  # 1. De MQTT Broker
   mosquitto:
     image: eclipse-mosquitto:latest
+    restart: unless-stopped
     ports:
       - "1883:1883"
-    volumes:
-      - ./mosquitto/config:/mosquitto/config
+    # Create configuration on the fly
+    entrypoint: [ "sh", "-c" ]
+    command: >
+      "echo 'listener 1883' > /mosquitto/config/mosquitto.conf &&
+      echo 'allow_anonymous true' >> /mosquitto/config/mosquitto.conf &&
+      /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
     networks:
       - gateway_net
 
-  # 2. De Database (InfluxDB)
+  # 2. De Database
   influxdb:
-    image: influxdb:2.7
+    image: kobedm/my-influxdb:v1
+    restart: unless-stopped
     ports:
       - "8086:8086"
-    volumes:
-      - influxdb_data:/var/lib/influxdb2
     networks:
       - gateway_net
 
-  # 3. De Verwerking (Node-RED)
+  # 3. De Verwerking
   nodered:
     image: nodered/node-red:latest
+    restart: unless-stopped
     ports:
       - "1880:1880"
-    volumes:
-      - node_red_data:/data
+    environment:
+      - FLOWS=flows.json
     networks:
       - gateway_net
+    # Download flows.json at startup
+    user: root
+    entrypoint: [ "/bin/sh", "-c" ]
+    command: >
+      wget -O /data/flows.json https://raw.githubusercontent.com/kobedemetser/Cloudcomputing/main/flows.json &&
+      chown -R node-red:node-red /data &&
+      su node-red -c 'npm --prefix /usr/src/node-red start -- --userDir /data'
     depends_on:
       - mosquitto
       - influxdb
 
-  # 4. Jouw eigen Python App (Sensor simulatie)
+  # 4. Python App
   sensor_app:
-    build: .
+    # Use the pre-built image from Docker Hub
+    image: kobedm/sensor-app:v1
+    restart: unless-stopped
     networks:
       - gateway_net
     depends_on:
       - mosquitto
 
-  # 5. Beheer (Portainer)
+  # 5. Beheer
   portainer:
     image: portainer/portainer-ce:latest
+    restart: unless-stopped
     ports:
       - "9443:9443"
     volumes:
@@ -51,6 +66,17 @@ services:
     networks:
       - gateway_net
 
+  # 6. Grafana dashboard
+  grafana:
+    image: kobedm/my-grafana:v1
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - gateway_net
+    depends_on:
+      - influxdb
+
 networks:
   gateway_net:
     driver: bridge
@@ -58,4 +84,4 @@ networks:
 volumes:
   influxdb_data:
   node_red_data:
-  portainer_data:
+  portainer_data:  

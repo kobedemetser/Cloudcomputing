@@ -1,0 +1,4 @@
+FROM nodered/node-red:latest
+
+# Copy data from local directory to image
+COPY --chown=node-red:node-red ./nodered_data /data

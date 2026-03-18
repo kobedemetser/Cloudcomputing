@@ -1,0 +1,12 @@
+# Ignore data directories (data is in Docker images or loaded dynamically)
+influxdb_data/
+grafana_data/
+nodered_data/
+portainer_data/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore environment files
+.env

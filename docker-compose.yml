@@ -127,6 +127,9 @@ networks:
 
 volumes:
   influxdb_data:
+    name: cloudopdracht_influxdb_data
   node_red_data:
+    name: cloudopdracht_node_red_data
   grafana_data:
+    name: cloudopdracht_grafana_data
   portainer_data:  

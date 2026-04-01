@@ -41,7 +41,7 @@ services:
 
   # 4. Python App
   sensor_app:
-    # Use the pre-built image from Docker Hub
+    # Uses the pre-built image from Docker Hub
     image: kobedm/sensor-app:v1
     restart: unless-stopped
     networks:

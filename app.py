@@ -2,7 +2,6 @@ import paho.mqtt.client as mqtt
 import time
 import random
 
-
 BROKER = "mosquitto"
 PORT = 1883
 TOPIC = "sensors/temperature"
@@ -12,7 +11,7 @@ client = mqtt.Client()
 def connect_with_retry():
     while True:
         try:
-            print("Verbinden met de broker...")
+            print(f"Verbinden met de broker ({BROKER})...")
             client.connect(BROKER, PORT, 60)
             print("Verbonden!")
             break
@@ -23,8 +22,13 @@ def connect_with_retry():
 connect_with_retry()
 
 while True:
-    # Simuleer een waarde
-    waarde = random.randint(20, 30)
-    client.publish(TOPIC, waarde)
-    print(f"Verzonden: {waarde} naar {TOPIC}")
-    time.sleep(5)
+    try:
+        # GEBRUIK UNIFORM VOOR FLOATS (randdouble bestaat niet)
+        waarde = random.uniform(29478.3108065056, 59478.3108065056)
+        
+        client.publish(TOPIC, waarde)
+        print(f"Verzonden: {waarde:.2f} naar {TOPIC}")
+        time.sleep(5)
+    except Exception as e:
+        print(f"Fout tijdens verzenden: {e}")
+        time.sleep(2)

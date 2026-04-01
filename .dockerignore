@@ -1,0 +1,6 @@
+# Ignore these during build context to save time/space
+portainer_data/
+.git/
+__pycache__/
+*.pyc
+.env

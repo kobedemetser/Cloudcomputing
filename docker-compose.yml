@@ -16,30 +16,25 @@ services:
 
   # 2. De Database
   influxdb:
-    image: kobedm/my-influxdb:v1
+    image: kobedm/my-influxdb:final
     restart: unless-stopped
     ports:
       - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
     networks:
       - gateway_net
 
   # 3. De Verwerking
   nodered:
-    image: nodered/node-red:latest
+    image: kobedm/my-nodered:final
     restart: unless-stopped
     ports:
       - "1880:1880"
-    environment:
-      - FLOWS=flows.json
+    volumes:
+      - node_red_data:/data
     networks:
       - gateway_net
-    # Download flows.json at startup
-    user: root
-    entrypoint: [ "/bin/sh", "-c" ]
-    command: >
-      wget -O /data/flows.json https://raw.githubusercontent.com/kobedemetser/Cloudcomputing/main/flows.json &&
-      chown -R node-red:node-red /data &&
-      su node-red -c 'npm --prefix /usr/src/node-red start -- --userDir /data'
     depends_on:
       - mosquitto
       - influxdb
@@ -68,10 +63,12 @@ services:
 
   # 6. Grafana dashboard
   grafana:
-    image: kobedm/my-grafana:v1
+    image: kobedm/my-grafana:final
     restart: unless-stopped
     ports:
       - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
     networks:
       - gateway_net
     depends_on:
@@ -84,4 +81,5 @@ networks:
 volumes:
   influxdb_data:
   node_red_data:
+  grafana_data:
   portainer_data:  

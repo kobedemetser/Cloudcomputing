@@ -1,4 +1,41 @@
 services:
+  # 0. One-time data seeders (run only when volume is empty)
+  init_influxdb:
+    image: alpine:3.20
+    restart: "no"
+    command: >
+      sh -c "if [ -z \"$$(ls -A /target 2>/dev/null)\" ]; then
+      cp -a /seed/. /target/ &&
+      chown -R 1000:1000 /target;
+      fi"
+    volumes:
+      - influxdb_data:/target
+      - ./influxdb_data:/seed:ro
+
+  init_nodered:
+    image: alpine:3.20
+    restart: "no"
+    command: >
+      sh -c "if [ -z \"$$(ls -A /target 2>/dev/null)\" ]; then
+      cp -a /seed/. /target/ &&
+      chown -R 1000:1000 /target;
+      fi"
+    volumes:
+      - node_red_data:/target
+      - ./nodered_data:/seed:ro
+
+  init_grafana:
+    image: alpine:3.20
+    restart: "no"
+    command: >
+      sh -c "if [ -z \"$$(ls -A /target 2>/dev/null)\" ]; then
+      cp -a /seed/. /target/ &&
+      chown -R 472:472 /target;
+      fi"
+    volumes:
+      - grafana_data:/target
+      - ./grafana_data:/seed:ro
+
   # 1. De MQTT Broker
   mosquitto:
     image: eclipse-mosquitto:latest
@@ -24,6 +61,9 @@ services:
       - influxdb_data:/var/lib/influxdb2
     networks:
       - gateway_net
+    depends_on:
+      init_influxdb:
+        condition: service_completed_successfully
 
   # 3. De Verwerking
   nodered:
@@ -36,8 +76,12 @@ services:
     networks:
       - gateway_net
     depends_on:
-      - mosquitto
-      - influxdb
+      init_nodered:
+        condition: service_completed_successfully
+      mosquitto:
+        condition: service_started
+      influxdb:
+        condition: service_started
 
   # 4. Python App
   sensor_app:
@@ -72,7 +116,10 @@ services:
     networks:
       - gateway_net
     depends_on:
-      - influxdb
+      init_grafana:
+        condition: service_completed_successfully
+      influxdb:
+        condition: service_started
 
 networks:
   gateway_net:

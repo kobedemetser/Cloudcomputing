@@ -10,3 +10,6 @@ __pycache__/
 
 # Ignore environment files
 .env
+
+# Backup archives created by migration scripts
+backups/

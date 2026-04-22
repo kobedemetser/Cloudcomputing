@@ -1,40 +1,37 @@
 services:
   # 0. One-time data seeders (run only when volume is empty)
   init_influxdb:
-    image: alpine:3.20
+    image: kobedm/my-influxdb:final
     restart: "no"
     command: >
       sh -c "if [ -z \"$$(ls -A /target 2>/dev/null)\" ]; then
-      cp -a /seed/. /target/ &&
+      cp -a /var/lib/influxdb2/. /target/ &&
       chown -R 1000:1000 /target;
       fi"
     volumes:
       - influxdb_data:/target
-      - ./influxdb_data:/seed:ro
 
   init_nodered:
-    image: alpine:3.20
+    image: kobedm/my-nodered:final
     restart: "no"
     command: >
       sh -c "if [ -z \"$$(ls -A /target 2>/dev/null)\" ]; then
-      cp -a /seed/. /target/ &&
+      cp -a /data/. /target/ &&
       chown -R 1000:1000 /target;
       fi"
     volumes:
       - node_red_data:/target
-      - ./nodered_data:/seed:ro
 
   init_grafana:
-    image: alpine:3.20
+    image: kobedm/my-grafana:final
     restart: "no"
     command: >
       sh -c "if [ -z \"$$(ls -A /target 2>/dev/null)\" ]; then
-      cp -a /seed/. /target/ &&
+      cp -a /var/lib/grafana/. /target/ &&
       chown -R 472:472 /target;
       fi"
     volumes:
       - grafana_data:/target
-      - ./grafana_data:/seed:ro
 
   # 1. De MQTT Broker
   mosquitto:
@@ -118,9 +115,6 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin12345}
     volumes:
       - grafana_data:/var/lib/grafana
     networks:

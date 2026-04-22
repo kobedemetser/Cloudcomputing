@@ -1,10 +1,12 @@
 import paho.mqtt.client as mqtt
 import time
 import random
+import json
 
 BROKER = "mosquitto"
 PORT = 1883
-TOPIC = "sensors/temperature"
+TOPIC_JOYSTICK = "sensor/joystick"
+TOPIC_BUTTONS = "sensor/buttons"
 
 client = mqtt.Client()
 
@@ -23,11 +25,20 @@ connect_with_retry()
 
 while True:
     try:
-        # GEBRUIK UNIFORM VOOR FLOATS (randdouble bestaat niet)
-        waarde = random.uniform(29478.3108065056, 59478.3108065056)
-        
-        client.publish(TOPIC, waarde)
-        print(f"Verzonden: {waarde:.2f} naar {TOPIC}")
+        # Publish payloads in the same format as the Node-RED validators.
+        joystick_payload = {
+            "x": random.randint(-100, 100),
+            "y": random.randint(-100, 100),
+        }
+        buttons_payload = {
+            "btn1": random.randint(0, 1),
+            "btn2": random.randint(0, 1),
+        }
+
+        client.publish(TOPIC_JOYSTICK, json.dumps(joystick_payload))
+        client.publish(TOPIC_BUTTONS, json.dumps(buttons_payload))
+        print(f"Verzonden joystick naar {TOPIC_JOYSTICK}: {joystick_payload}")
+        print(f"Verzonden buttons naar {TOPIC_BUTTONS}: {buttons_payload}")
         time.sleep(5)
     except Exception as e:
         print(f"Fout tijdens verzenden: {e}")

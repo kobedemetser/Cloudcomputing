@@ -81,6 +81,18 @@ services:
       influxdb:
         condition: service_started
 
+  # ── 3b. Sensor Application Publisher ─────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - gateway_net
+    depends_on:
+      mosquitto:
+        condition: service_started
+
   # ── 4. Dashboard ────────────────────────────────────────────────────────────
   grafana:
     image: grafana/grafana:latest

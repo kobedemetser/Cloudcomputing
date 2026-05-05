@@ -32,8 +32,8 @@ Netwerk: alle containers communiceren intern via het Docker-netwerk `gateway_net
 |-------------|------------------------------|--------------|----------------------------------|
 | `app`       | custom (Python 3.11)         | —            | Simuleert joystick- en knopdata  |
 | `mosquitto` | eclipse-mosquitto:2          | 1884         | MQTT broker                      |
-| `nodered`   | nodered/node-red:latest      | 1881         | Dataverwerking en validatie       |
-| `influxdb`  | influxdb:2.7                 | 8087         | Tijdreeksdatabase                |
+| `nodered`   | nodered/node-red:latest      | 1880         | Dataverwerking en validatie       |
+| `influxdb`  | influxdb:2.7                 | 8086         | Tijdreeksdatabase                |
 | `grafana`   | grafana/grafana:latest       | 3001         | Dashboard                        |
 | `portainer` | portainer/portainer-ce:latest| 9444         | Container management             |
 
@@ -87,8 +87,8 @@ De image `kobedm/sensor-app:latest` wordt automatisch opgehaald van Docker Hub. 
 | Service    | URL                        | Credentials          |
 |------------|----------------------------|----------------------|
 | Grafana    | http://localhost:3001       | admin / adminpassword |
-| Node-RED   | http://localhost:1881       | —                    |
-| InfluxDB   | http://localhost:8087       | admin / adminpassword |
+| Node-RED   | http://localhost:1880       | —                    |
+| InfluxDB   | http://localhost:8086       | admin / adminpassword |
 | Portainer  | https://localhost:9444      | (eerste keer instellen) |
 | MQTT       | localhost:1884              | anoniem              |
 

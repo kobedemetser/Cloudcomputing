@@ -83,6 +83,7 @@ services:
 
   # ── 3b. Sensor Application Publisher ─────────────────────────────────────
   app:
+    image: ${DOCKER_IMAGE:-kobedm/sensor-app:latest}
     build:
       context: .
       dockerfile: Dockerfile

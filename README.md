@@ -7,22 +7,22 @@ Cloud computing opdracht — Bachelor Elektronica-ICT, VIVES 2025-2026.
 ```
 ┌─────────────┐     MQTT      ┌───────────────┐     HTTP API    ┌───────────────┐
 │   app.py    │ ────────────► │   Mosquitto   │ ◄────────────── │   Node-RED    │
-│ (simulator) │               │  (port 1884)  │                 │  (port 1881)  │
+│ (simulator) │               │  (port 1883)  │                 │  (port 1880)  │
 └─────────────┘               └───────────────┘                 └───────┬───────┘
                                                                          │ InfluxDB Line Protocol
                                                                          ▼
                                                                 ┌───────────────┐
                                                                 │   InfluxDB    │
-                                                                │  (port 8087)  │
+                                                                │  (port 8086)  │
                                                                 └───────┬───────┘
                                                                          │ Flux queries
                                                                          ▼
                                                                 ┌───────────────┐
                                                                 │    Grafana    │
-                                                                │  (port 3001)  │
+                                                                │  (port 3000)  │
                                                                 └───────────────┘
 
-Beheer: Portainer (port 9444) — toont status van alle bovenstaande containers.
+Beheer: Portainer (port 9443) — toont status van alle bovenstaande containers.
 Netwerk: alle containers communiceren intern via het Docker-netwerk `gateway_net`.
 ```
 
@@ -31,11 +31,11 @@ Netwerk: alle containers communiceren intern via het Docker-netwerk `gateway_net
 | Container   | Image                        | Externe poort | Rol                              |
 |-------------|------------------------------|--------------|----------------------------------|
 | `app`       | custom (Python 3.11)         | —            | Simuleert joystick- en knopdata  |
-| `mosquitto` | eclipse-mosquitto:2          | 1884         | MQTT broker                      |
+| `mosquitto` | eclipse-mosquitto:2          | 1883         | MQTT broker                      |
 | `nodered`   | nodered/node-red:latest      | 1880         | Dataverwerking en validatie       |
 | `influxdb`  | influxdb:2.7                 | 8086         | Tijdreeksdatabase                |
-| `grafana`   | grafana/grafana:latest       | 3001         | Dashboard                        |
-| `portainer` | portainer/portainer-ce:latest| 9444         | Container management             |
+| `grafana`   | grafana/grafana:latest       | 3000         | Dashboard                        |
+| `portainer` | portainer/portainer-ce:latest| 9443         | Container management             |
 
 ### Dataflow
 
@@ -86,11 +86,11 @@ De image `kobedm/sensor-app:latest` wordt automatisch opgehaald van Docker Hub. 
 
 | Service    | URL                        | Credentials          |
 |------------|----------------------------|----------------------|
-| Grafana    | http://localhost:3001       | admin / adminpassword |
+| Grafana    | http://localhost:3000       | admin / adminpassword |
 | Node-RED   | http://localhost:1880       | —                    |
 | InfluxDB   | http://localhost:8086       | admin / adminpassword |
-| Portainer  | https://localhost:9444      | (eerste keer instellen) |
-| MQTT       | localhost:1884              | anoniem              |
+| Portainer  | https://localhost:9443      | (eerste keer instellen) |
+| MQTT       | localhost:1883              | anoniem              |
 
 ### Stack stoppen
 

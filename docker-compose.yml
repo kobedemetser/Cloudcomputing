@@ -34,7 +34,7 @@ services:
     image: eclipse-mosquitto:2
     restart: unless-stopped
     ports:
-      - "1884:1883"
+      - "1883:1883"
     entrypoint: ["sh", "-c"]
     command: >-
       "echo 'listener 1883' > /mosquitto/config/mosquitto.conf &&
@@ -99,7 +99,7 @@ services:
     image: grafana/grafana:latest
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: adminpassword
@@ -119,7 +119,7 @@ services:
     image: portainer/portainer-ce:latest
     restart: unless-stopped
     ports:
-      - "9444:9443"
+      - "9443:9443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data

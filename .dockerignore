@@ -1,4 +1,7 @@
 # Ignore these during build context to save time/space
+influxdb_data/
+grafana_data/
+nodered_data/
 portainer_data/
 .git/
 __pycache__/

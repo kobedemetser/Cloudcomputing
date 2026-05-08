@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    uid: influxdb-sensor
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: sensors
+      defaultBucket: crypto_sim_bucket
+      tlsSkipVerify: true
+    secureJsonData:
+      token: mytoken123
+    isDefault: true
+    editable: true

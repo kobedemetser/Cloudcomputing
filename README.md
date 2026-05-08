@@ -30,7 +30,7 @@ Netwerk: alle containers communiceren intern via het Docker-netwerk `gateway_net
 
 | Container   | Image                        | Externe poort | Rol                              |
 |-------------|------------------------------|--------------|----------------------------------|
-| `app`       | custom (Python 3.11)         | —            | Simuleert joystick- en knopdata  |
+| `app`       | custom (Python 3.11)         | —            | Simuleert crypto-prijzen         |
 | `mosquitto` | eclipse-mosquitto:2          | 1883         | MQTT broker                      |
 | `nodered`   | nodered/node-red:latest      | 1880         | Dataverwerking en validatie       |
 | `influxdb`  | influxdb:2.7                 | 8086         | Tijdreeksdatabase                |
@@ -39,18 +39,17 @@ Netwerk: alle containers communiceren intern via het Docker-netwerk `gateway_net
 
 ### Dataflow
 
-1. **app.py** publiceert elke 5 seconden JSON naar twee MQTT-topics:
-   - `sensor/joystick` → `{"x": int, "y": int}` (waarden -100 tot 100)
-   - `sensor/buttons` → `{"btn1": 0|1, "btn2": 0|1}`
-2. **Node-RED** leest beide topics in via MQTT-in nodes.
-3. Voor elk topic valideert een **function node** de data:
-   - Controleer of velden aanwezig en van het juiste type zijn.
-   - Waarden buiten bereik worden weggegooid (`return null`).
+1. **app.py** publiceert elke 5 seconden JSON naar MQTT-topic `sensor/crypto`:
+   - `{"symbol_btc": "BTCEUR", "price_btc": number, "symbol_eth": "ETHEUR", "price_eth": number}`
+2. **Node-RED** leest het crypto-topic in via een MQTT-in node.
+3. Een **function node** valideert de data:
+   - Controleer of symbolen aanwezig en geldig zijn.
+   - Controleer of prijzen numeriek en positief zijn.
    - Alleen geldige metingen worden doorgestuurd naar InfluxDB.
-4. **InfluxDB** slaat de metingen op in de bucket `sensor_data` (org: `sensors`).
+4. **InfluxDB** slaat de metingen op in de bucket `crypto_sim_bucket` (org: `sensors`).
 5. **Grafana** visualiseert via Flux-queries:
-   - Live tijdreeks van joystick x/y en knopstatus.
-   - Gemiddelde waarden over de laatste 1 uur en 24 uur.
+   - Live tijdreeks van BTC/EUR en ETH/EUR.
+   - Actuele BTC/EUR- en ETH/EUR-waarden.
 
 ---
 

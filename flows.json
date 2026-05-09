@@ -1,98 +1,202 @@
 [
-  {
-    "id": "crypto-tab",
-    "type": "tab",
-    "label": "Crypto Gateway",
-    "disabled": false,
-    "info": "Reads crypto prices from MQTT, validates them, and writes valid data to InfluxDB."
-  },
-  {
-    "id": "crypto-mqtt-config",
-    "type": "mqtt-broker",
-    "name": "Mosquitto",
-    "broker": "mosquitto",
-    "port": "1883",
-    "clientid": "nodered-crypto-gateway",
-    "autoConnect": true,
-    "usetls": false,
-    "protocolVersion": "4",
-    "keepalive": "60",
-    "cleansession": true,
-    "autoUnsubscribe": true,
-    "birthTopic": "",
-    "birthQos": "0",
-    "birthPayload": "",
-    "birthMsg": {},
-    "closeTopic": "",
-    "closeQos": "0",
-    "closePayload": "",
-    "closeMsg": {},
-    "willTopic": "",
-    "willQos": "0",
-    "willPayload": "",
-    "willMsg": {},
-    "sessionExpiry": ""
-  },
-  {
-    "id": "crypto-mqtt-in",
-    "type": "mqtt in",
-    "z": "crypto-tab",
-    "name": "Crypto MQTT in",
-    "topic": "sensor/crypto",
-    "qos": "0",
-    "datatype": "auto",
-    "broker": "crypto-mqtt-config",
-    "nl": false,
-    "rap": true,
-    "rh": 0,
-    "inputs": 0,
-    "x": 150,
-    "y": 120,
-    "wires": [
-      [
-        "validate-crypto"
-      ]
-    ]
-  },
-  {
-    "id": "validate-crypto",
-    "type": "function",
-    "z": "crypto-tab",
-    "name": "Validate crypto payload",
-    "func": "try {\n    var payload = typeof msg.payload === 'string' ? JSON.parse(msg.payload) : msg.payload;\n    var btc = Number(payload.price_btc);\n    var eth = Number(payload.price_eth);\n    var btcSymbol = payload.symbol_btc || 'BTCEUR';\n    var ethSymbol = payload.symbol_eth || 'ETHEUR';\n\n    function validSymbol(value) {\n        return typeof value === 'string' && /^[A-Z0-9:_-]{3,20}$/.test(value);\n    }\n\n    if (!validSymbol(btcSymbol) || !validSymbol(ethSymbol)) {\n        return null;\n    }\n    if (!Number.isFinite(btc) || !Number.isFinite(eth) || btc <= 0 || eth <= 0) {\n        return null;\n    }\n\n    msg.payload = [\n        'crypto,symbol=' + btcSymbol + ' price=' + btc,\n        'crypto,symbol=' + ethSymbol + ' price=' + eth\n    ].join('\\n');\n    msg.headers = {\n        'Authorization': 'Token mytoken123',\n        'Content-Type': 'text/plain; charset=utf-8'\n    };\n    return msg;\n} catch (err) {\n    node.warn('Invalid crypto payload: ' + err.message);\n    return null;\n}",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 390,
-    "y": 120,
-    "wires": [
-      [
-        "write-influx"
-      ]
-    ]
-  },
-  {
-    "id": "write-influx",
-    "type": "http request",
-    "z": "crypto-tab",
-    "name": "Write to InfluxDB",
-    "method": "POST",
-    "ret": "txt",
-    "paytoqs": "ignore",
-    "url": "http://influxdb:8086/api/v2/write?org=sensors&bucket=crypto_sim_bucket&precision=s",
-    "tls": "",
-    "persist": false,
-    "proxy": "",
-    "authType": "",
-    "senderr": false,
-    "headers": [],
-    "x": 650,
-    "y": 120,
-    "wires": [
-      []
-    ]
-  }
+    {
+        "id": "crypto-mqtt-in",
+        "type": "mqtt in",
+        "z": "crypto-tab",
+        "name": "Crypto MQTT in",
+        "topic": "sensor/crypto",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "crypto-mqtt-config",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 240,
+        "y": 280,
+        "wires": [
+            [
+                "2fa40c396b7511da"
+            ]
+        ]
+    },
+    {
+        "id": "e307ed09fc37f25e",
+        "type": "influxdb out",
+        "z": "crypto-tab",
+        "influxdb": "b38cd9c7519d4276",
+        "name": "Real Data",
+        "measurement": "crypto_prijzen_euro",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "sensors",
+        "bucket": "sensor_data",
+        "x": 840,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "2fa40c396b7511da",
+        "type": "function",
+        "z": "crypto-tab",
+        "name": "function 1",
+        "func": "msg.payload = {\n    bitcoin: msg.payload.price_btc,\n    ethereum: msg.payload.price_eth\n};\nmsg.measurement = \"simulated_prices\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 280,
+        "wires": [
+            [
+                "3cb4b7cdb59e360c"
+            ]
+        ]
+    },
+    {
+        "id": "103f0c0e9f462da4",
+        "type": "http request",
+        "z": "crypto-tab",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.binance.com/api/v3/ticker/price?symbols=[%22BTCEUR%22,%22ETHEUR%22]",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 430,
+        "y": 400,
+        "wires": [
+            [
+                "c8bd356eba69d0e6"
+            ]
+        ]
+    },
+    {
+        "id": "5c6cde1ca8d867f5",
+        "type": "inject",
+        "z": "crypto-tab",
+        "name": "5 sec timer",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 230,
+        "y": 400,
+        "wires": [
+            [
+                "103f0c0e9f462da4"
+            ]
+        ]
+    },
+    {
+        "id": "c8bd356eba69d0e6",
+        "type": "function",
+        "z": "crypto-tab",
+        "name": "function 2",
+        "func": "// De data van Binance is nu een lijst (Array)\nvar prijzenlijst = msg.payload;\nvar nieuwePayload = {};\n\n// Loop door de lijst en koppel de juiste prijs aan de juiste naam\nprijzenlijst.forEach(function(item) {\n    if (item.symbol === \"BTCEUR\") {\n        nieuwePayload.bitcoin = parseFloat(item.price);\n    } else if (item.symbol === \"ETHEUR\") {\n        nieuwePayload.ethereum = parseFloat(item.price);\n    }\n});\n\n// Controleer of we data hebben om te voorkomen dat InfluxDB crasht\nif (Object.keys(nieuwePayload).length === 0) {\n    return null; \n}\n\nmsg.payload = nieuwePayload;\nmsg.measurement = \"crypto_prijzen_euro\"; \nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 400,
+        "wires": [
+            [
+                "e307ed09fc37f25e"
+            ]
+        ]
+    },
+    {
+        "id": "3cb4b7cdb59e360c",
+        "type": "influxdb out",
+        "z": "crypto-tab",
+        "influxdb": "b38cd9c7519d4276",
+        "name": "Fake Data ",
+        "measurement": "simulated_prices",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "sensors",
+        "bucket": "crypto_sim_bucket",
+        "x": 850,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "crypto-mqtt-config",
+        "type": "mqtt-broker",
+        "name": "Mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "nodered-crypto-gateway",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "b38cd9c7519d4276",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "Cloud",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "941ac7b109a83858",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-influxdb": "0.7.0"
+        }
+    }
 ]

@@ -1,5 +1,12 @@
 [
     {
+        "id": "crypto-tab",
+        "type": "tab",
+        "label": "Crypto",
+        "disabled": false,
+        "info": ""
+    },
+    {
         "id": "crypto-mqtt-in",
         "type": "mqtt in",
         "z": "crypto-tab",

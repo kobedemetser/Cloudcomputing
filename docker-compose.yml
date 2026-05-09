@@ -1,13 +1,14 @@
 services:
 
-  # Write the project Node-RED flow into the persistent volume.
+  # Write the project Node-RED flow and install plugins into the persistent volume.
   init_nodered:
-    image: alpine:3.20
+    image: node:20-alpine
     restart: "no"
     command: >-
       sh -c "cp /seed/flows.json /data/flows.json &&
-      chown 1000:1000 /data/flows.json &&
-      echo 'Crypto Node-RED flow written'"
+      cd /data && npm install node-red-contrib-influxdb &&
+      chown -R 1000:1000 /data &&
+      echo 'Node-RED init complete'"
     volumes:
       - node_red_data:/data
       - ./nodered/flows.json:/seed/flows.json:ro
@@ -40,9 +41,10 @@ services:
       DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword
       DOCKER_INFLUXDB_INIT_ORG: sensors
       DOCKER_INFLUXDB_INIT_BUCKET: crypto_sim_bucket
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: mytoken123
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: b38cd9c7519d4276
     volumes:
       - influxdb_data:/var/lib/influxdb2
+      - ./influxdb/init-buckets.sh:/docker-entrypoint-initdb.d/init-buckets.sh:ro
     networks:
       - gateway_net
 

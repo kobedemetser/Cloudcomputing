@@ -12,6 +12,6 @@ datasources:
       defaultBucket: crypto_sim_bucket
       tlsSkipVerify: true
     secureJsonData:
-      token: mytoken123
+      token: b38cd9c7519d4276
     isDefault: true
     editable: true

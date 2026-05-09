@@ -33,7 +33,7 @@
         "precisionV18FluxV20": "ms",
         "retentionPolicyV18Flux": "",
         "org": "sensors",
-        "bucket": "sensor_data",
+        "bucket": "crypto_bucket",
         "x": 840,
         "y": 400,
         "wires": []

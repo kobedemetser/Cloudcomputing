@@ -532,10 +532,10 @@
         "kind": "CustomVariable",
         "spec": {
           "name": "SelectedBucket",
-          "query": "Real Data : sensor_data, Fake Data : crypto_sim_bucket",
+          "query": "Real Data : crypto_bucket, Fake Data : crypto_sim_bucket",
           "current": {
             "text": "Real Data",
-            "value": "sensor_data"
+            "value": "crypto_bucket"
           },
           "options": [],
           "multi": false,

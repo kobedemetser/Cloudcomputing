@@ -1,24 +1,5 @@
 services:
 
-  # Write the project Node-RED flow and install plugins into the persistent volume.
-  init_nodered:
-    image: node:20-alpine
-    restart: "no"
-    command: >-
-      sh -c "cp /seed/flows.json /data/flows.json &&
-      cp /seed/flows_cred.json /data/flows_cred.json &&
-      cp /seed/settings.js /data/settings.js &&
-      cd /data && npm install node-red-contrib-influxdb &&
-      chown -R 1000:1000 /data &&
-      echo 'Node-RED init complete'"
-    volumes:
-      - node_red_data:/data
-      - ./nodered/flows.json:/seed/flows.json:ro
-      - ./nodered/flows_cred.json:/seed/flows_cred.json:ro
-      - ./nodered/settings.js:/seed/settings.js:ro
-    networks:
-      - gateway_net
-
   # MQTT broker.
   mosquitto:
     image: eclipse-mosquitto:2
@@ -35,7 +16,10 @@ services:
 
   # Time-series database for crypto measurements.
   influxdb:
-    image: influxdb:2.7
+    image: kobedm/influxdb-crypto:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.influxdb
     restart: unless-stopped
     ports:
       - "8086:8086"
@@ -48,13 +32,15 @@ services:
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: b38cd9c7519d4276
     volumes:
       - influxdb_data:/var/lib/influxdb2
-      - ./influxdb/init-buckets.sh:/docker-entrypoint-initdb.d/init-buckets.sh:ro
     networks:
       - gateway_net
 
   # Node-RED validates MQTT crypto payloads and writes valid prices to InfluxDB.
   nodered:
-    image: nodered/node-red:latest
+    image: kobedm/nodered-crypto:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.nodered
     restart: unless-stopped
     ports:
       - "1880:1880"
@@ -65,8 +51,6 @@ services:
     networks:
       - gateway_net
     depends_on:
-      init_nodered:
-        condition: service_completed_successfully
       mosquitto:
         condition: service_started
       influxdb:
@@ -85,9 +69,12 @@ services:
       mosquitto:
         condition: service_started
 
-  # Grafana dashboard for live crypto prices. No historical seed data is bundled.
+  # Grafana dashboard for live crypto prices.
   grafana:
-    image: grafana/grafana:latest
+    image: kobedm/grafana-crypto:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.grafana
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -97,8 +84,6 @@ services:
       GF_PATHS_PROVISIONING: /etc/grafana/provisioning
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./grafana/dashboards:/etc/grafana/dashboards:ro
     networks:
       - gateway_net
     depends_on:

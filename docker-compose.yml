@@ -73,7 +73,7 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
-      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: "/etc/grafana/provisioning/dashboards/crypto.json"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: "/etc/grafana/dashboards/crypto.json"
     volumes:
       - grafana_data:/var/lib/grafana
     networks:

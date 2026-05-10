@@ -28,14 +28,14 @@ Netwerk: alle containers communiceren intern via het Docker-netwerk `gateway_net
 
 ### Services
 
-| Container   | Image                        | Externe poort | Rol                              |
-|-------------|------------------------------|--------------|----------------------------------|
-| `app`       | custom (Python 3.11)         | —            | Simuleert crypto-prijzen         |
-| `mosquitto` | eclipse-mosquitto:2          | 1883         | MQTT broker                      |
-| `nodered`   | nodered/node-red:latest      | 1880         | Dataverwerking en validatie       |
-| `influxdb`  | influxdb:2.7                 | 8086         | Tijdreeksdatabase                |
-| `grafana`   | grafana/grafana:latest       | 3000         | Dashboard                        |
-| `portainer` | portainer/portainer-ce:latest| 9443         | Container management             |
+| Container   | Image                                | Externe poort | Rol                              |
+|-------------|--------------------------------------|--------------|----------------------------------|
+| `app`       | custom (kobedm/sensor-app:latest)    | —            | Simuleert crypto-prijzen         |
+| `mosquitto` | eclipse-mosquitto:2                  | 1883         | MQTT broker                      |
+| `nodered`   | kobedm/nodered-crypto:latest         | 1880         | Dataverwerking en validatie      |
+| `influxdb`  | kobedm/influxdb-crypto:latest        | 8086         | Tijdreeksdatabase                |
+| `grafana`   | kobedm/grafana-crypto:latest         | 3000         | Dashboard & Discord-alerts       |
+| `portainer` | portainer/portainer-ce:latest        | 9443         | Container management             |
 
 ### Dataflow
 
@@ -50,6 +50,7 @@ Netwerk: alle containers communiceren intern via het Docker-netwerk `gateway_net
 5. **Grafana** visualiseert via Flux-queries:
    - Live tijdreeks van BTC/EUR en ETH/EUR.
    - Actuele BTC/EUR- en ETH/EUR-waarden.
+   - Genereert **Discord-alerts** en stuurt notificaties via contact points (geconfigureerd via auto-provisioning) wanneer bepaalde limieten overschreden worden.
 
 ---
 
@@ -159,14 +160,3 @@ docker compose up -d
 ```
 
 ---
-
-## Reflectie en samenwerking
-
-| Onderdeel                        | Verantwoordelijke |
-|----------------------------------|-------------------|
-| Docker Compose en containersetup |              |
-| Node-RED flows en validatie      |              |
-| InfluxDB configuratie            |              |
-| Grafana dashboard                |              |
-| CI/CD script en GitHub Actions   |              |
-| Documentatie                     |              |

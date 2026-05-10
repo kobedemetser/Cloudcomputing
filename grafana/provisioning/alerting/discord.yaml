@@ -1,0 +1,18 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: "Discord Bitcoin"
+    receivers:
+      - uid: discord_btc
+        type: discord
+        settings:
+          url: "https://discord.com/api/webhooks/1501954695797801153/0URTX5r0YXAA-ZfdqOe5ZQnxbhKdJRHIBjUUkLu3KpA3Dx2jFLXPfdjgnkeMKXYTV_mG"
+
+  - orgId: 1
+    name: "Discord Other"
+    receivers:
+      - uid: discord_other
+        type: discord
+        settings:
+          url: "https://discord.com/api/webhooks/1501957660235403284/Mtj4B_82FhijI7hoAX72OXnfs21XKnCbUFARvdttLWGjwOdubW0_aKwSEUKP8_jaUV9f"
